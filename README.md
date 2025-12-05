@@ -1,6 +1,6 @@
-# Tauri + React + Typescript
+# Winapze
 
-This template should help get you started developing with Tauri, React and Typescript in Vite.
+This project is a web catalog manager built with Tauri, React, and Typescript.
 
 ## Recommended IDE Setup
 
