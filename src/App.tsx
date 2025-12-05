@@ -190,7 +190,7 @@ function App() {
           </div>
         </header>
 
-        <div className="p-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <div className="p-8 w-fit mx-auto grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-16">
           {apps.map((app) => (
             <AppCard
               key={app.id}
@@ -204,12 +204,12 @@ function App() {
           {/* Add New Card */}
           <button
             onClick={() => setIsAddModalOpen(true)}
-            className="group border-2 border-dashed rounded-2xl p-5 flex flex-col items-center justify-center gap-3 transition-all border-sidebar-border hover:border-primary/50 hover:bg-surface-hover"
+            className="group flex flex-col items-center gap-3 p-2 rounded-xl transition-all duration-300"
           >
-            <div className="w-12 h-12 rounded-full flex items-center justify-center transition-colors bg-surface group-hover:bg-primary/20">
-              <Plus size={24} className="text-text-secondary group-hover:text-primary" />
+            <div className="w-16 h-16 rounded-2xl border-2 border-dashed border-text-secondary/30 flex items-center justify-center transition-colors group-hover:border-primary/50 bg-surface/50">
+              <Plus size={28} className="text-text-secondary group-hover:text-primary transition-colors" />
             </div>
-            <span className="font-medium text-text-secondary group-hover:text-primary/80">Add App</span>
+            <span className="text-sm font-medium text-text-secondary group-hover:text-primary transition-colors">Add</span>
           </button>
         </div>
       </main>
