@@ -1,10 +1,128 @@
 @import "tailwindcss";
 
-/* Custom Vibe Styles */
-:root {
-  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+@theme {
+  --color-background: var(--background);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-surface: var(--surface);
+  --color-surface-hover: var(--surface-hover);
+  --color-surface-border: var(--surface-border);
+  --color-input: var(--input);
+  --color-input-border: var(--input-border);
+
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-text: var(--primary-text);
+
+  --color-overlay: var(--overlay);
 }
 
-body {
-  @apply bg-slate-900 text-white overflow-hidden;
+/* Base Light Theme (Default) */
+:root {
+  --background: #f8fafc;
+  /* slate-50 */
+  --sidebar: #ffffff;
+  /* white */
+  --sidebar-border: #e2e8f0;
+  /* slate-200 */
+
+  --surface: #ffffff;
+  /* white */
+  --surface-hover: #f1f5f9;
+  /* slate-100 */
+  --surface-border: #e2e8f0;
+  /* slate-200 */
+
+  --input: #f8fafc;
+  /* slate-50 */
+  --input-border: #cbd5e1;
+  /* slate-300 */
+
+  --text-primary: #0f172a;
+  /* slate-900 */
+  --text-secondary: #64748b;
+  /* slate-500 */
+
+  --primary: #4f46e5;
+  /* indigo-600 */
+  --primary-hover: #4338ca;
+  /* indigo-700 */
+  --primary-text: #ffffff;
+
+  --overlay: rgba(0, 0, 0, 0.6);
+}
+
+/* Dark Theme */
+[data-theme='dark'] {
+  --background: #0f172a;
+  /* slate-900 */
+  --sidebar: rgba(2, 6, 23, 0.5);
+  /* slate-950/50 */
+  --sidebar-border: rgba(255, 255, 255, 0.05);
+
+  --surface: rgba(30, 41, 59, 0.4);
+  /* slate-800/40 */
+  --surface-hover: rgba(30, 41, 59, 0.6);
+  /* slate-800/60 */
+  --surface-border: rgba(255, 255, 255, 0.05);
+
+  --input: rgba(30, 41, 59, 0.5);
+  /* slate-800/50 */
+  --input-border: rgba(255, 255, 255, 0.05);
+
+  --text-primary: #f1f5f9;
+  /* slate-100 */
+  --text-secondary: #94a3b8;
+  /* slate-400 */
+
+  --primary: #4f46e5;
+  --primary-hover: #6366f1;
+  /* indigo-500 */
+  --primary-text: #ffffff;
+
+  --overlay: rgba(0, 0, 0, 0.6);
+}
+
+/* Dim Theme */
+[data-theme='dim'] {
+  --background: #161b22;
+  /* dim-900 */
+  --sidebar: rgba(22, 27, 34, 0.5);
+  /* dim-900/50 */
+  --sidebar-border: #30363d;
+  /* dim-700 */
+
+  --surface: rgba(33, 38, 45, 0.4);
+  /* dim-800/40 */
+  --surface-hover: rgba(33, 38, 45, 0.6);
+  /* dim-800/60 */
+  --surface-border: #30363d;
+  /* dim-700 */
+
+  --input: rgba(33, 38, 45, 0.5);
+  /* dim-800/50 */
+  --input-border: #30363d;
+  /* dim-700 */
+
+  --text-primary: #f0f6fc;
+  /* slate-100 ish */
+  --text-secondary: #8b949e;
+  /* slate-400 ish */
+
+  --primary: #4f46e5;
+  --primary-hover: #6366f1;
+  --primary-text: #ffffff;
+
+  --overlay: rgba(0, 0, 0, 0.6);
+}
+
+@layer utilities {
+  .flex-center {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
 }
