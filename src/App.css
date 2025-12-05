@@ -1,0 +1,10 @@
+@import "tailwindcss";
+
+/* Custom Vibe Styles */
+:root {
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+}
+
+body {
+  @apply bg-slate-900 text-white overflow-hidden;
+}
