@@ -57,37 +57,6 @@
 
 /* Dark Theme */
 [data-theme='dark'] {
-  --background: #0f172a;
-  /* slate-900 */
-  --sidebar: rgba(2, 6, 23, 0.5);
-  /* slate-950/50 */
-  --sidebar-border: rgba(255, 255, 255, 0.05);
-
-  --surface: rgba(30, 41, 59, 0.4);
-  /* slate-800/40 */
-  --surface-hover: rgba(30, 41, 59, 0.6);
-  /* slate-800/60 */
-  --surface-border: rgba(255, 255, 255, 0.05);
-
-  --input: rgba(30, 41, 59, 0.5);
-  /* slate-800/50 */
-  --input-border: rgba(255, 255, 255, 0.05);
-
-  --text-primary: #f1f5f9;
-  /* slate-100 */
-  --text-secondary: #94a3b8;
-  /* slate-400 */
-
-  --primary: #4f46e5;
-  --primary-hover: #6366f1;
-  /* indigo-500 */
-  --primary-text: #ffffff;
-
-  --overlay: rgba(0, 0, 0, 0.6);
-}
-
-/* Dim Theme */
-[data-theme='dim'] {
   --background: #161b22;
   /* dim-900 */
   --sidebar: rgba(22, 27, 34, 0.5);
@@ -114,6 +83,37 @@
 
   --primary: #4f46e5;
   --primary-hover: #6366f1;
+  --primary-text: #ffffff;
+
+  --overlay: rgba(0, 0, 0, 0.6);
+}
+
+/* Dim Theme */
+[data-theme='dim'] {
+  --background: #0f172a;
+  /* slate-900 */
+  --sidebar: rgba(2, 6, 23, 0.5);
+  /* slate-950/50 */
+  --sidebar-border: rgba(255, 255, 255, 0.05);
+
+  --surface: rgba(30, 41, 59, 0.4);
+  /* slate-800/40 */
+  --surface-hover: rgba(30, 41, 59, 0.6);
+  /* slate-800/60 */
+  --surface-border: rgba(255, 255, 255, 0.05);
+
+  --input: rgba(30, 41, 59, 0.5);
+  /* slate-800/50 */
+  --input-border: rgba(255, 255, 255, 0.05);
+
+  --text-primary: #f1f5f9;
+  /* slate-100 */
+  --text-secondary: #94a3b8;
+  /* slate-400 */
+
+  --primary: #4f46e5;
+  --primary-hover: #6366f1;
+  /* indigo-500 */
   --primary-text: #ffffff;
 
   --overlay: rgba(0, 0, 0, 0.6);

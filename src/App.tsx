@@ -1,6 +1,8 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
+import Fuse from "fuse.js";
 import { invoke } from "@tauri-apps/api/core";
 import { Search, Plus, Grid, Settings, Moon, Sun, Monitor } from "lucide-react";
+import { Input } from "./components/ui/input";
 import "./App.css";
 import AppCard from "./components/AppCard";
 import AppModal from "./components/AppModal";
@@ -26,6 +28,7 @@ function App() {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editingApp, setEditingApp] = useState<AppItem | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
 
   const [contextMenu, setContextMenu] = useState<{ x: number; y: number; appId: number | null }>({
     x: 0,
@@ -142,6 +145,17 @@ function App() {
     });
   };
 
+  const filteredApps = useMemo(() => {
+    if (!searchQuery) return apps;
+
+    const fuse = new Fuse(apps, {
+      keys: ["name", "url"],
+      threshold: 0.3, // 0.0 = perfect match, 1.0 = match anything
+    });
+
+    return fuse.search(searchQuery).map((result) => result.item);
+  }, [apps, searchQuery]);
+
   return (
     <div className="flex h-screen font-sans selection:bg-primary/30 relative transition-colors duration-300 bg-background text-text-primary">
       {/* Sidebar */}
@@ -176,22 +190,33 @@ function App() {
 
       {/* Main Content */}
       <main className="flex-1 overflow-y-auto" onClick={closeContextMenu}>
-        <header className="h-20 flex items-center px-8 justify-between sticky top-0 backdrop-blur-md z-10 bg-background/80">
-          <h1 className="text-2xl font-bold bg-gradient-to-r from-primary to-purple-500 bg-clip-text text-transparent">
-            Library
-          </h1>
-          <div className="relative group">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-text-secondary group-focus-within:text-primary transition-colors" size={18} />
-            <input
-              type="text"
-              placeholder="Search apps..."
-              className="border rounded-full pl-10 pr-4 py-2 w-64 focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all bg-input border-input-border focus:bg-input"
-            />
+        <header className="h-20 grid grid-cols-3 items-center px-8 sticky top-0 backdrop-blur-md z-10 bg-background/80">
+          <div className="flex items-center">
+            <h1 className="text-2xl font-bold bg-gradient-to-r from-primary to-purple-500 bg-clip-text text-transparent">
+              Library
+            </h1>
+          </div>
+
+          <div className="flex justify-center w-full">
+            <div className="relative group w-full max-w-md">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-text-secondary group-focus-within:text-primary transition-colors" size={18} />
+              <Input
+                type="text"
+                placeholder="Search apps..."
+                className="pl-10 h-10 w-full rounded-2xl bg-surface/50 border-input-border focus-visible:ring-primary/50 focus-visible:border-primary/50 transition-all font-medium"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </div>
+          </div>
+
+          <div className="flex justify-end">
+            {/* Empty for now, balances grid */}
           </div>
         </header>
 
         <div className="p-8 w-fit mx-auto grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-16">
-          {apps.map((app) => (
+          {filteredApps.map((app) => (
             <AppCard
               key={app.id}
               app={app}
