@@ -1,12 +1,13 @@
 import { useState, useEffect, useMemo } from "react";
 import Fuse from "fuse.js";
 import { invoke } from "@tauri-apps/api/core";
-import { Search, Plus, Grid, Settings, Moon, Sun, Monitor } from "lucide-react";
+import { Search, Plus, Settings, Moon, Sun, Monitor, Home } from "lucide-react";
 import { Input } from "./components/ui/input";
 import "./App.css";
 import AppCard from "./components/AppCard";
 import AppModal from "./components/AppModal";
 import ContextMenu from "./components/ContextMenu";
+import SidebarItem from "./components/SidebarItem";
 
 interface AppItem {
   id: number;
@@ -159,42 +160,43 @@ function App() {
   return (
     <div className="flex h-screen font-sans selection:bg-primary/30 relative transition-colors duration-300 bg-background text-text-primary">
       {/* Sidebar */}
-      <aside className="w-20 flex flex-col items-center py-6 backdrop-blur-xl border-r transition-colors duration-300 bg-sidebar border-sidebar-border">
-        <div className="mb-8 p-3 bg-primary rounded-xl shadow-lg shadow-primary/20">
-          <Grid size={24} className="text-primary-text" />
+      <aside className="w-24 flex flex-col items-center py-8 backdrop-blur-xl border-r transition-colors duration-300 bg-sidebar/50 border-sidebar-border z-20">
+        <div className="mb-10">
+          <SidebarItem
+            icon={Home}
+            label="Home"
+            variant="primary"
+            isActive={true}
+          />
         </div>
 
-        <nav className="flex-1 flex flex-col gap-4 w-full px-2">
-          <button
+        <nav className="flex-1 flex flex-col gap-6 w-full items-center">
+          <SidebarItem
+            icon={theme === 'light' ? Sun : theme === 'dark' ? Moon : Monitor}
+            label={`Current Theme: ${theme}`}
             onClick={toggleTheme}
-            className="p-3 rounded-xl transition-colors group relative hover:bg-surface-hover"
-            title={`Current Theme: ${theme}`}
-          >
-            {theme === 'light' && <Sun size={22} className="text-text-secondary group-hover:text-primary transition-colors" />}
-            {theme === 'dark' && <Moon size={22} className="text-text-secondary group-hover:text-primary transition-colors" />}
-            {theme === 'dim' && <Monitor size={22} className="text-text-secondary group-hover:text-primary transition-colors" />}
-          </button>
+          />
 
-          <button
+          <SidebarItem
+            icon={Plus}
+            label="Add App"
             onClick={() => setIsAddModalOpen(true)}
-            className="p-3 rounded-xl transition-colors group hover:bg-surface-hover"
-          >
-            <Plus size={22} className="text-text-secondary group-hover:text-primary transition-colors" />
-          </button>
+          />
         </nav>
 
-        <button className="p-3 rounded-xl transition-colors hover:bg-surface-hover">
-          <Settings size={22} className="text-text-secondary hover:text-primary transition-colors" />
-        </button>
+        <div className="mt-auto">
+          <SidebarItem
+            icon={Settings}
+            label="Settings"
+          />
+        </div>
       </aside>
 
       {/* Main Content */}
       <main className="flex-1 overflow-y-auto" onClick={closeContextMenu}>
         <header className="h-20 grid grid-cols-3 items-center px-8 sticky top-0 backdrop-blur-md z-10 bg-background/80">
           <div className="flex items-center">
-            <h1 className="text-2xl font-bold bg-gradient-to-r from-primary to-purple-500 bg-clip-text text-transparent">
-              Library
-            </h1>
+            {/* Left side - Reserved for future title/logo */}
           </div>
 
           <div className="flex justify-center w-full">

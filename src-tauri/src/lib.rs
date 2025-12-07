@@ -16,10 +16,15 @@ fn greet(name: &str) -> String {
 }
 
 #[tauri::command]
-async fn open_app_window(app: tauri::AppHandle, url: String, label: String, name: String) -> Result<(), String> {
+async fn open_app_window(
+    app: tauri::AppHandle,
+    url: String,
+    label: String,
+    name: String,
+) -> Result<(), String> {
     println!("Opening window: {} ({}) with url: {}", label, name, url);
     let url_parsed = Url::parse(&url).map_err(|e| e.to_string())?;
-    
+
     // Calculate data directory for this app profile to ensure isolation
     let app_data_dir = app.path().app_data_dir().map_err(|e| e.to_string())?;
     let profile_path = app_data_dir.join("profiles").join(&label);
@@ -28,14 +33,14 @@ async fn open_app_window(app: tauri::AppHandle, url: String, label: String, name
     if !profile_path.exists() {
         fs::create_dir_all(&profile_path).map_err(|e| e.to_string())?;
     }
-    
+
     tauri::WebviewWindowBuilder::new(&app, &label, tauri::WebviewUrl::External(url_parsed))
         .title(&name)
         .inner_size(1200.0, 800.0)
         .data_directory(profile_path)
         .build()
         .map_err(|e| e.to_string())?;
-        
+
     Ok(())
 }
 
@@ -67,7 +72,12 @@ fn load_apps(app: tauri::AppHandle) -> Result<Vec<AppItem>, String> {
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
-        .invoke_handler(tauri::generate_handler![greet, open_app_window, save_apps, load_apps])
+        .invoke_handler(tauri::generate_handler![
+            greet,
+            open_app_window,
+            save_apps,
+            load_apps
+        ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
