@@ -5,30 +5,22 @@ import { getCurrentWindow } from '@tauri-apps/api/window';
 import { listen } from '@tauri-apps/api/event';
 
 export default function BrowserToolbar() {
-    const [url, setUrl] = useState('');
-    const [canGoBack, setCanGoBack] = useState(false);
-    const [canGoForward, setCanGoForward] = useState(false);
-    const [isLoading, setIsLoading] = useState(false);
+    const [initialUrl, setInitialUrl] = useState('');
     const [appName, setAppName] = useState('App');
+    const [currentUrl, setCurrentUrl] = useState('');
 
     useEffect(() => {
-        // Parse query params for initial state
         const params = new URLSearchParams(window.location.search);
-        const initialUrl = params.get('url') || '';
-        const initialName = params.get('name') || 'App';
+        const url = params.get('url') || '';
+        const name = params.get('name') || 'App';
 
-        setUrl(initialUrl);
-        setAppName(initialName);
+        setInitialUrl(url);
+        setCurrentUrl(url);
+        setAppName(name);
 
         // Listen for state updates from the content webview (via Rust)
-        const unlisten = listen('webview_state_update', (event: any) => {
-            const payload = event.payload;
-            if (payload) {
-                if (payload.url) setUrl(payload.url);
-                if (typeof payload.can_go_back === 'boolean') setCanGoBack(payload.can_go_back);
-                if (typeof payload.can_go_forward === 'boolean') setCanGoForward(payload.can_go_forward);
-                if (typeof payload.loading === 'boolean') setIsLoading(payload.loading);
-            }
+        const unlisten = listen('webview_state_update', (_event) => {
+            // Future implementation
         });
 
         return () => {
@@ -39,7 +31,13 @@ export default function BrowserToolbar() {
     const handleBack = () => invoke('nav_back');
     const handleForward = () => invoke('nav_forward');
     const handleReload = () => invoke('nav_reload');
-    const handleHome = () => invoke('nav_home');
+
+    const handleHome = () => {
+        if (initialUrl) {
+            invoke('navigate_to', { url: initialUrl });
+            setCurrentUrl(initialUrl); // Optimistic update
+        }
+    };
 
     const handleMinimize = () => getCurrentWindow().minimize();
     const handleMaximize = () => getCurrentWindow().toggleMaximize();
@@ -47,22 +45,20 @@ export default function BrowserToolbar() {
 
     return (
         <div
-            className="fixed top-0 left-0 right-0 h-[50px] bg-background border-b border-border flex items-center px-2 gap-2 select-none z-50"
+            className="fixed top-0 left-0 right-0 h-[50px] bg-background border-b border-border flex items-center px-2 gap-2 select-none z-50 overflow-hidden"
             data-tauri-drag-region
         >
             <div className="flex items-center gap-1">
                 <button
                     onClick={handleBack}
-                    disabled={!canGoBack}
-                    className={`p-2 rounded-md transition-colors ${canGoBack ? 'hover:bg-accent text-foreground' : 'text-muted-foreground opacity-50 cursor-not-allowed'}`}
+                    className="p-2 rounded-md hover:bg-accent text-foreground transition-colors"
                     title="Back"
                 >
                     <ArrowLeft size={18} />
                 </button>
                 <button
                     onClick={handleForward}
-                    disabled={!canGoForward}
-                    className={`p-2 rounded-md transition-colors ${canGoForward ? 'hover:bg-accent text-foreground' : 'text-muted-foreground opacity-50 cursor-not-allowed'}`}
+                    className="p-2 rounded-md hover:bg-accent text-foreground transition-colors"
                     title="Forward"
                 >
                     <ArrowRight size={18} />
@@ -72,7 +68,7 @@ export default function BrowserToolbar() {
                     className="p-2 rounded-md hover:bg-accent text-foreground transition-colors"
                     title="Reload"
                 >
-                    <RotateCw size={18} className={isLoading ? 'animate-spin' : ''} />
+                    <RotateCw size={18} />
                 </button>
                 <button
                     onClick={handleHome}
@@ -87,9 +83,9 @@ export default function BrowserToolbar() {
                 className="flex-1 flex items-center justify-center px-4"
                 data-tauri-drag-region
             >
-                <div className="bg-surface/50 border border-input-border rounded-lg px-3 py-1.5 text-sm text-text-secondary w-full max-w-xl text-center truncate flex items-center justify-center gap-2">
+                <div className="bg-surface/50 border border-input-border rounded-lg px-3 py-1.5 text-sm text-text-secondary w-full max-w-xl text-center truncate flex items-center justify-center gap-2 pointer-events-none">
                     <span className="font-semibold text-text-primary mr-2">{appName}</span>
-                    <span className="opacity-50 text-xs">{url}</span>
+                    <span className="opacity-50 text-xs">{currentUrl || initialUrl}</span>
                 </div>
             </div>
 

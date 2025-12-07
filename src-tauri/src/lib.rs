@@ -54,7 +54,12 @@ fn nav_reload(window: tauri::Window) -> Result<(), String> {
 }
 
 #[tauri::command]
-fn nav_home(window: tauri::Window) -> Result<(), String> {
+fn navigate_to(window: tauri::Window, url: String) -> Result<(), String> {
+    if let Some(webview) = window.get_webview("content") {
+        webview
+            .eval(&format!("window.location.href = '{}'", url))
+            .map_err(|e| e.to_string())?;
+    }
     Ok(())
 }
 
@@ -270,7 +275,7 @@ pub fn run() {
             nav_back,
             nav_forward,
             nav_reload,
-            nav_home
+            navigate_to
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
