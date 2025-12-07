@@ -1,0 +1,303 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>App Window</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        overflow: hidden;
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+
+      /* Base Light Theme (Default) */
+      :root {
+        --sidebar: #ffffff;
+        --sidebar-border: #e2e8f0;
+        --surface-hover: #f1f5f9;
+        --surface-border: #e2e8f0;
+        --text-primary: #0f172a;
+        --text-secondary: #64748b;
+      }
+
+      /* Title bar container */
+      #custom-titlebar {
+        height: 40px;
+        display: flex;
+        align-items: center;
+        background-color: var(--sidebar);
+        border-bottom: 1px solid var(--sidebar-border);
+        flex-shrink: 0;
+        user-select: none;
+        position: relative;
+        z-index: 10000;
+      }
+
+      /* Navigation controls on the left */
+      .titlebar-nav-controls {
+        display: flex;
+        align-items: center;
+        gap: 2px;
+        padding-left: 8px;
+        height: 100%;
+      }
+
+      .titlebar-nav-button {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 32px;
+        border: none;
+        background: transparent;
+        color: var(--text-secondary);
+        cursor: pointer;
+        border-radius: 6px;
+        transition: all 0.15s ease;
+      }
+
+      .titlebar-nav-button:hover {
+        background-color: var(--surface-hover);
+        color: var(--text-primary);
+      }
+
+      .titlebar-nav-button:active {
+        background-color: var(--surface-border);
+        transform: scale(0.95);
+      }
+
+      /* Center area with app name */
+      .titlebar-center {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        padding: 0 12px;
+      }
+
+      .titlebar-app-name {
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--text-primary);
+        letter-spacing: 0.01em;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 100%;
+      }
+
+      /* Window controls on the right */
+      .titlebar-controls {
+        display: flex;
+        align-items: center;
+        height: 100%;
+      }
+
+      .titlebar-button {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 46px;
+        height: 100%;
+        border: none;
+        background: transparent;
+        color: var(--text-secondary);
+        cursor: pointer;
+        transition: background-color 0.15s ease, color 0.15s ease;
+      }
+
+      .titlebar-button:hover {
+        background-color: var(--surface-hover);
+        color: var(--text-primary);
+      }
+
+      .titlebar-button:active {
+        background-color: var(--surface-border);
+      }
+
+      .titlebar-close:hover {
+        background-color: #e81123;
+        color: white;
+      }
+
+      .titlebar-close:active {
+        background-color: #bf0f1d;
+      }
+
+      /* Content iframe */
+      #app-content {
+        flex: 1;
+        border: none;
+        width: 100%;
+        height: 100%;
+      }
+
+      /* SVG icons */
+      .icon {
+        width: 16px;
+        height: 16px;
+      }
+      
+      .icon-sm {
+        width: 14px;
+        height: 14px;
+      }
+      
+      .icon-xs {
+        width: 12px;
+        height: 12px;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Custom Title Bar -->
+    <div id="custom-titlebar" data-tauri-drag-region>
+      <!-- Navigation Controls -->
+      <div class="titlebar-nav-controls">
+        <button class="titlebar-nav-button" id="nav-back" title="Back">
+          <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+          </svg>
+        </button>
+        <button class="titlebar-nav-button" id="nav-forward" title="Forward">
+          <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+          </svg>
+        </button>
+        <button class="titlebar-nav-button" id="nav-refresh" title="Refresh">
+          <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+          </svg>
+        </button>
+        <button class="titlebar-nav-button" id="nav-home" title="Home">
+          <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+          </svg>
+        </button>
+      </div>
+
+      <!-- App Name (Draggable) -->
+      <div class="titlebar-center" data-tauri-drag-region>
+        <span class="titlebar-app-name" id="app-name">App</span>
+      </div>
+
+      <!-- Window Controls -->
+      <div class="titlebar-controls">
+        <button class="titlebar-button titlebar-minimize" id="window-minimize" title="Minimize">
+          <svg class="icon-sm" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4" />
+          </svg>
+        </button>
+        <button class="titlebar-button titlebar-maximize" id="window-maximize" title="Maximize">
+          <svg class="icon-xs" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <rect x="3" y="3" width="18" height="18" rx="2" ry="2" stroke-width="2" />
+          </svg>
+        </button>
+        <button class="titlebar-button titlebar-close" id="window-close" title="Close">
+          <svg class="icon-sm" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- App Content in iframe -->
+    <iframe id="app-content"></iframe>
+
+    <script type="module">
+      const { getCurrentWindow } = window.__TAURI__.window;
+      const appWindow = getCurrentWindow();
+
+      // Get URL parameters
+      const urlParams = new URLSearchParams(window.location.search);
+      const appUrl = urlParams.get('url');
+      const appName = urlParams.get('name') || 'App';
+
+      // Set app name in title bar
+      document.getElementById('app-name').textContent = appName;
+      document.title = appName;
+
+      // Load URL in iframe
+      if (appUrl) {
+        document.getElementById('app-content').src = appUrl;
+      }
+
+      // Navigation handlers
+      document.getElementById('nav-back').addEventListener('click', () => {
+        const iframe = document.getElementById('app-content');
+        iframe.contentWindow.history.back();
+      });
+
+      document.getElementById('nav-forward').addEventListener('click', () => {
+        const iframe = document.getElementById('app-content');
+        iframe.contentWindow.history.forward();
+      });
+
+      document.getElementById('nav-refresh').addEventListener('click', () => {
+        const iframe = document.getElementById('app-content');
+        iframe.contentWindow.location.reload();
+      });
+
+      document.getElementById('nav-home').addEventListener('click', () => {
+        if (appUrl) {
+          document.getElementById('app-content').src = appUrl;
+        }
+      });
+
+      // Window control handlers
+      document.getElementById('window-minimize').addEventListener('click', () => {
+        appWindow.minimize();
+      });
+
+      document.getElementById('window-maximize').addEventListener('click', async () => {
+        await appWindow.toggleMaximize();
+        updateMaximizeIcon();
+      });
+
+      document.getElementById('window-close').addEventListener('click', () => {
+        appWindow.close();
+      });
+
+      // Update maximize/restore icon
+      async function updateMaximizeIcon() {
+        const isMaximized = await appWindow.isMaximized();
+        const btn = document.getElementById('window-maximize');
+        
+        if (isMaximized) {
+          // Restore icon (two overlapping squares)
+          btn.innerHTML = `
+            <svg class="icon-xs" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <rect x="5" y="5" width="14" height="14" rx="1" ry="1" stroke-width="2" />
+              <path d="M7 7V5a2 2 0 012-2h8a2 2 0 012 2v8a2 2 0 01-2 2h-2" stroke-width="2" />
+            </svg>
+          `;
+          btn.title = 'Restore';
+        } else {
+          // Maximize icon (single square)
+          btn.innerHTML = `
+            <svg class="icon-xs" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <rect x="3" y="3" width="18" height="18" rx="2" ry="2" stroke-width="2" />
+            </svg>
+          `;
+          btn.title = 'Maximize';
+        }
+      }
+
+      // Listen for window resize events
+      appWindow.onResized(updateMaximizeIcon);
+      
+      // Initial icon state
+      updateMaximizeIcon();
+    </script>
+  </body>
+</html>

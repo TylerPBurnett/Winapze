@@ -16,7 +16,7 @@
         "title": "WebCatalog",
         "width": 900,
         "height": 650,
-        "visible": true,
+        "visible": false,
         "decorations": false,
         "transparent": true,
         "center": true

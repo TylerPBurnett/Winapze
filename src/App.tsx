@@ -9,6 +9,7 @@ import AppModal from "./components/AppModal";
 import ContextMenu from "./components/ContextMenu";
 import SidebarItem from "./components/SidebarItem";
 import CustomTitleBar from "./components/CustomTitleBar";
+import BrowserToolbar from "./components/BrowserToolbar";
 
 interface AppItem {
   id: number;
@@ -40,7 +41,7 @@ function App() {
 
   useEffect(() => {
     console.log("[App] Initializing main dashboard window");
-    
+
     invoke<AppItem[]>("load_apps")
       .then((loadedApps) => {
         console.log("[App] Loaded apps:", loadedApps?.length || 0, "apps");
@@ -146,6 +147,22 @@ function App() {
     }
   };
 
+  const onCreateShortcutFromContextMenu = async () => {
+    const app = apps.find(a => a.id === contextMenu.appId);
+    if (app) {
+      try {
+        await invoke("create_desktop_shortcut", {
+          appId: app.id,
+          name: app.name,
+          url: app.url
+        });
+        console.log("Shortcut created for", app.name);
+      } catch (err) {
+        console.error("Failed to create shortcut:", err);
+      }
+    }
+  };
+
   const toggleTheme = () => {
     setTheme(prev => {
       const next = prev === 'light' ? 'dark' : prev === 'dark' ? 'dim' : 'light';
@@ -164,123 +181,138 @@ function App() {
     return fuse.search(searchQuery).map((result) => result.item);
   }, [apps, searchQuery]);
 
+  // Check for toolbar mode
+  const [isToolbarMode, setIsToolbarMode] = useState(false);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("mode") === "toolbar") {
+      setIsToolbarMode(true);
+    }
+  }, []);
+
+  if (isToolbarMode) {
+    return <BrowserToolbar />;
+  }
+
   return (
     <div className="flex flex-col h-screen font-sans selection:bg-primary/30 relative transition-colors duration-300 bg-background text-text-primary">
       {/* Custom title bar for main dashboard window */}
       <CustomTitleBar />
-      
+
       {/* Main content area below title bar */}
       <div className="flex flex-1 min-h-0">
-      {/* Sidebar */}
-      <aside className="w-24 flex flex-col items-center py-8 backdrop-blur-xl border-r transition-colors duration-300 bg-sidebar/50 border-sidebar-border z-20">
-        <div className="mb-10">
-          <SidebarItem
-            icon={Home}
-            label="Home"
-            variant="primary"
-            isActive={true}
-          />
-        </div>
-
-        <nav className="flex-1 flex flex-col gap-6 w-full items-center">
-          <SidebarItem
-            icon={theme === 'light' ? Sun : theme === 'dark' ? Moon : Monitor}
-            label={`Current Theme: ${theme}`}
-            onClick={toggleTheme}
-          />
-
-          <SidebarItem
-            icon={Plus}
-            label="Add App"
-            onClick={() => setIsAddModalOpen(true)}
-          />
-        </nav>
-
-        <div className="mt-auto">
-          <SidebarItem
-            icon={Settings}
-            label="Settings"
-          />
-        </div>
-      </aside>
-
-      {/* Main Content */}
-      <main className="flex-1 overflow-y-auto" onClick={closeContextMenu}>
-        <header className="h-20 grid grid-cols-3 items-center px-8 sticky top-0 backdrop-blur-md z-10 bg-background/80">
-          <div className="flex items-center">
-            {/* Left side - Reserved for future title/logo */}
-          </div>
-
-          <div className="flex justify-center w-full">
-            <div className="relative group w-full max-w-md">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-text-secondary group-focus-within:text-primary transition-colors" size={18} />
-              <Input
-                type="text"
-                placeholder="Search apps..."
-                className="pl-10 h-10 w-full rounded-2xl bg-surface/50 border-input-border focus-visible:ring-primary/50 focus-visible:border-primary/50 transition-all font-medium"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-            </div>
-          </div>
-
-          <div className="flex justify-end">
-            {/* Empty for now, balances grid */}
-          </div>
-        </header>
-
-        <div className="p-8 w-fit mx-auto grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-16">
-          {filteredApps.map((app) => (
-            <AppCard
-              key={app.id}
-              app={app}
-              onClick={openApp}
-              onDelete={deleteApp}
-              onContextMenu={handleContextMenu}
+        {/* Sidebar */}
+        <aside className="w-24 flex flex-col items-center py-8 backdrop-blur-xl border-r transition-colors duration-300 bg-sidebar/50 border-sidebar-border z-20">
+          <div className="mb-10">
+            <SidebarItem
+              icon={Home}
+              label="Home"
+              variant="primary"
+              isActive={true}
             />
-          ))}
+          </div>
 
-          {/* Add New Card */}
-          <button
-            onClick={() => setIsAddModalOpen(true)}
-            className="group flex flex-col items-center gap-3 p-2 rounded-xl transition-all duration-300"
-          >
-            <div className="w-16 h-16 rounded-2xl border-2 border-dashed border-text-secondary/30 flex items-center justify-center transition-colors group-hover:border-primary/50 bg-surface/50">
-              <Plus size={28} className="text-text-secondary group-hover:text-primary transition-colors" />
+          <nav className="flex-1 flex flex-col gap-6 w-full items-center">
+            <SidebarItem
+              icon={theme === 'light' ? Sun : theme === 'dark' ? Moon : Monitor}
+              label={`Current Theme: ${theme}`}
+              onClick={toggleTheme}
+            />
+
+            <SidebarItem
+              icon={Plus}
+              label="Add App"
+              onClick={() => setIsAddModalOpen(true)}
+            />
+          </nav>
+
+          <div className="mt-auto">
+            <SidebarItem
+              icon={Settings}
+              label="Settings"
+            />
+          </div>
+        </aside>
+
+        {/* Main Content */}
+        <main className="flex-1 overflow-y-auto" onClick={closeContextMenu}>
+          <header className="h-20 grid grid-cols-3 items-center px-8 sticky top-0 backdrop-blur-md z-10 bg-background/80">
+            <div className="flex items-center">
+              {/* Left side - Reserved for future title/logo */}
             </div>
-            <span className="text-sm font-medium text-text-secondary group-hover:text-primary transition-colors">Add</span>
-          </button>
-        </div>
-      </main>
 
-      {/* Context Menu */}
-      {contextMenu.appId && (
-        <ContextMenu
-          x={contextMenu.x}
-          y={contextMenu.y}
-          onClose={closeContextMenu}
-          onEdit={onEditFromContextMenu}
-          onDelete={onDeleteFromContextMenu}
+            <div className="flex justify-center w-full">
+              <div className="relative group w-full max-w-md">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-text-secondary group-focus-within:text-primary transition-colors" size={18} />
+                <Input
+                  type="text"
+                  placeholder="Search apps..."
+                  className="pl-10 h-10 w-full rounded-2xl bg-surface/50 border-input-border focus-visible:ring-primary/50 focus-visible:border-primary/50 transition-all font-medium"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+              </div>
+            </div>
+
+            <div className="flex justify-end">
+              {/* Empty for now, balances grid */}
+            </div>
+          </header>
+
+          <div className="p-8 w-fit mx-auto grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-16">
+            {filteredApps.map((app) => (
+              <AppCard
+                key={app.id}
+                app={app}
+                onClick={openApp}
+                onDelete={deleteApp}
+                onContextMenu={handleContextMenu}
+              />
+            ))}
+
+            {/* Add New Card */}
+            <button
+              onClick={() => setIsAddModalOpen(true)}
+              className="group flex flex-col items-center gap-3 p-2 rounded-xl transition-all duration-300"
+            >
+              <div className="w-16 h-16 rounded-2xl border-2 border-dashed border-text-secondary/30 flex items-center justify-center transition-colors group-hover:border-primary/50 bg-surface/50">
+                <Plus size={28} className="text-text-secondary group-hover:text-primary transition-colors" />
+              </div>
+              <span className="text-sm font-medium text-text-secondary group-hover:text-primary transition-colors">Add</span>
+            </button>
+          </div>
+        </main>
+
+        {/* Context Menu */}
+        {contextMenu.appId && (
+          <ContextMenu
+            x={contextMenu.x}
+            y={contextMenu.y}
+            onClose={closeContextMenu}
+            onEdit={onEditFromContextMenu}
+            onDelete={onDeleteFromContextMenu}
+            onCreateShortcut={onCreateShortcutFromContextMenu}
+          />
+        )}
+
+        {/* Modals */}
+        <AppModal
+          isOpen={isAddModalOpen}
+          onClose={() => setIsAddModalOpen(false)}
+          onSave={handleAddApp}
+          title="Add New App"
+          submitLabel="Add App"
         />
-      )}
 
-      {/* Modals */}
-      <AppModal
-        isOpen={isAddModalOpen}
-        onClose={() => setIsAddModalOpen(false)}
-        onSave={handleAddApp}
-        title="Add New App"
-        submitLabel="Add App"
-      />
-
-      <AppModal
-        isOpen={isEditModalOpen}
-        onClose={() => { setIsEditModalOpen(false); setEditingApp(null); }}
-        onSave={handleEditAppSave}
-        initialData={editingApp ? { name: editingApp.name, url: editingApp.url, icon: editingApp.icon } : undefined}
-        title="Edit App"
-        submitLabel="Save Changes"
-      />
+        <AppModal
+          isOpen={isEditModalOpen}
+          onClose={() => { setIsEditModalOpen(false); setEditingApp(null); }}
+          onSave={handleEditAppSave}
+          initialData={editingApp ? { name: editingApp.name, url: editingApp.url, icon: editingApp.icon } : undefined}
+          title="Edit App"
+          submitLabel="Save Changes"
+        />
       </div>
     </div>
   );

@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { Edit2, Trash2 } from 'lucide-react';
+import { Edit2, Trash2, ExternalLink } from 'lucide-react';
 
 interface ContextMenuProps {
     x: number;
@@ -7,9 +7,10 @@ interface ContextMenuProps {
     onClose: () => void;
     onEdit: () => void;
     onDelete: () => void;
+    onCreateShortcut: () => void;
 }
 
-const ContextMenu: React.FC<ContextMenuProps> = ({ x, y, onClose, onEdit, onDelete }) => {
+const ContextMenu: React.FC<ContextMenuProps> = ({ x, y, onClose, onEdit, onDelete, onCreateShortcut }) => {
     const menuRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
@@ -43,6 +44,14 @@ const ContextMenu: React.FC<ContextMenuProps> = ({ x, y, onClose, onEdit, onDele
             >
                 <Trash2 size={16} />
                 Delete
+            </button>
+            <div className="my-1 border-t border-surface-border"></div>
+            <button
+                onClick={() => { onCreateShortcut(); onClose(); }}
+                className="w-full text-left px-4 py-2 text-sm flex items-center gap-2 transition-colors hover:bg-surface-hover hover:text-primary"
+            >
+                <ExternalLink size={16} />
+                Create Shortcut
             </button>
         </div>
     );
