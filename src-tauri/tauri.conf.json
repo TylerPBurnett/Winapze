@@ -12,9 +12,14 @@
   "app": {
     "windows": [
       {
-        "title": "web-catalog",
-        "width": 800,
-        "height": 600
+        "label": "main",
+        "title": "WebCatalog",
+        "width": 900,
+        "height": 650,
+        "visible": true,
+        "decorations": false,
+        "transparent": true,
+        "center": true
       }
     ],
     "security": {

@@ -8,6 +8,7 @@ import AppCard from "./components/AppCard";
 import AppModal from "./components/AppModal";
 import ContextMenu from "./components/ContextMenu";
 import SidebarItem from "./components/SidebarItem";
+import CustomTitleBar from "./components/CustomTitleBar";
 
 interface AppItem {
   id: number;
@@ -38,16 +39,22 @@ function App() {
   });
 
   useEffect(() => {
+    console.log("[App] Initializing main dashboard window");
+    
     invoke<AppItem[]>("load_apps")
       .then((loadedApps) => {
+        console.log("[App] Loaded apps:", loadedApps?.length || 0, "apps");
         if (loadedApps && loadedApps.length > 0) {
           setApps(loadedApps);
         }
       })
-      .catch(console.error);
+      .catch((err) => {
+        console.error("[App] Error loading apps:", err);
+      });
 
     // Set initial theme
     document.documentElement.setAttribute('data-theme', theme);
+    console.log("[App] Theme set to:", theme);
   }, [theme]); // Re-run when theme changes
 
   const handleAddApp = async (name: string, url: string, icon: string) => {
@@ -158,7 +165,12 @@ function App() {
   }, [apps, searchQuery]);
 
   return (
-    <div className="flex h-screen font-sans selection:bg-primary/30 relative transition-colors duration-300 bg-background text-text-primary">
+    <div className="flex flex-col h-screen font-sans selection:bg-primary/30 relative transition-colors duration-300 bg-background text-text-primary">
+      {/* Custom title bar for main dashboard window */}
+      <CustomTitleBar />
+      
+      {/* Main content area below title bar */}
+      <div className="flex flex-1 min-h-0">
       {/* Sidebar */}
       <aside className="w-24 flex flex-col items-center py-8 backdrop-blur-xl border-r transition-colors duration-300 bg-sidebar/50 border-sidebar-border z-20">
         <div className="mb-10">
@@ -269,6 +281,7 @@ function App() {
         title="Edit App"
         submitLabel="Save Changes"
       />
+      </div>
     </div>
   );
 }

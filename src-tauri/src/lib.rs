@@ -1,5 +1,8 @@
 use std::fs;
-use tauri::Manager;
+use tauri::{
+    menu::{MenuBuilder, MenuItemBuilder, PredefinedMenuItem},
+    Manager,
+};
 use url::Url;
 
 #[derive(serde::Serialize, serde::Deserialize, Debug, Clone)]
@@ -22,25 +25,107 @@ async fn open_app_window(
     label: String,
     name: String,
 ) -> Result<(), String> {
-    println!("Opening window: {} ({}) with url: {}", label, name, url);
+    println!("[open_app_window] Opening window: {} ({}) with url: {}", label, name, url);
     let url_parsed = Url::parse(&url).map_err(|e| e.to_string())?;
+    let home_url = url.clone();
 
     // Calculate data directory for this app profile to ensure isolation
     let app_data_dir = app.path().app_data_dir().map_err(|e| e.to_string())?;
     let profile_path = app_data_dir.join("profiles").join(&label);
+    println!("[open_app_window] Profile path: {:?}", profile_path);
 
     // Ensure directory exists
     if !profile_path.exists() {
         fs::create_dir_all(&profile_path).map_err(|e| e.to_string())?;
+        println!("[open_app_window] Created profile directory");
     }
 
-    tauri::WebviewWindowBuilder::new(&app, &label, tauri::WebviewUrl::External(url_parsed))
-        .title(&name)
-        .inner_size(1200.0, 800.0)
-        .data_directory(profile_path)
+    // Create menu items for navigation with icon-only labels (no accelerator display for cleaner look)
+    let back_item = MenuItemBuilder::with_id("nav_back", "←")
+        .build(&app)
+        .map_err(|e| e.to_string())?;
+    
+    let forward_item = MenuItemBuilder::with_id("nav_forward", "→")
+        .build(&app)
+        .map_err(|e| e.to_string())?;
+    
+    // Separator between navigation and actions
+    let separator1 = PredefinedMenuItem::separator(&app)
+        .map_err(|e| e.to_string())?;
+    
+    let reload_item = MenuItemBuilder::with_id("nav_reload", "⟳")
+        .build(&app)
+        .map_err(|e| e.to_string())?;
+    
+    let home_item = MenuItemBuilder::with_id("nav_home", "⌂")
+        .build(&app)
+        .map_err(|e| e.to_string())?;
+
+    // Build the menu with navigation items and separators
+    let menu = MenuBuilder::new(&app)
+        .item(&back_item)
+        .item(&forward_item)
+        .item(&separator1)
+        .item(&reload_item)
+        .item(&home_item)
         .build()
         .map_err(|e| e.to_string())?;
 
+    println!("[open_app_window] Menu created successfully");
+
+    // Build the window with native decorations and menu
+    let window = tauri::WebviewWindowBuilder::new(&app, &label, tauri::WebviewUrl::External(url_parsed))
+        .title(&name)
+        .inner_size(1200.0, 800.0)
+        .data_directory(profile_path)
+        .menu(menu)
+        .build()
+        .map_err(|e| e.to_string())?;
+
+    println!("[open_app_window] Window built successfully");
+
+    // Set up menu event handler
+    let window_clone = window.clone();
+    let home_url_clone = home_url.clone();
+    
+    window.on_menu_event(move |_win, event| {
+        println!("[Menu Event] Received: {:?}", event.id().0);
+        
+        let webview = &window_clone;
+        
+        match event.id().0.as_str() {
+            "nav_back" => {
+                println!("[Menu] Back navigation triggered");
+                if let Err(e) = webview.eval("window.history.back()") {
+                    eprintln!("[Menu] Error executing back: {}", e);
+                }
+            }
+            "nav_forward" => {
+                println!("[Menu] Forward navigation triggered");
+                if let Err(e) = webview.eval("window.history.forward()") {
+                    eprintln!("[Menu] Error executing forward: {}", e);
+                }
+            }
+            "nav_reload" => {
+                println!("[Menu] Reload triggered");
+                if let Err(e) = webview.eval("window.location.reload()") {
+                    eprintln!("[Menu] Error executing reload: {}", e);
+                }
+            }
+            "nav_home" => {
+                println!("[Menu] Home navigation triggered to: {}", home_url_clone);
+                let js = format!("window.location.href = '{}'", home_url_clone);
+                if let Err(e) = webview.eval(&js) {
+                    eprintln!("[Menu] Error executing home: {}", e);
+                }
+            }
+            _ => {
+                println!("[Menu] Unknown menu event: {}", event.id().0);
+            }
+        }
+    });
+
+    println!("[open_app_window] Menu event handler registered");
     Ok(())
 }
 

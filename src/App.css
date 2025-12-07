@@ -126,3 +126,76 @@
     justify-content: center;
   }
 }
+
+/* Custom Title Bar Styles */
+.custom-titlebar {
+  height: 32px;
+  display: flex;
+  align-items: center;
+  background-color: var(--sidebar);
+  border-bottom: 1px solid var(--sidebar-border);
+  flex-shrink: 0;
+  user-select: none;
+  position: relative;
+  z-index: 100;
+}
+
+.titlebar-left {
+  display: flex;
+  align-items: center;
+  padding-left: 12px;
+  gap: 8px;
+}
+
+.titlebar-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  letter-spacing: 0.02em;
+}
+
+.titlebar-drag-region {
+  flex: 1;
+  height: 100%;
+  -webkit-app-region: drag;
+  app-region: drag;
+}
+
+.titlebar-controls {
+  display: flex;
+  align-items: center;
+  height: 100%;
+}
+
+.titlebar-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 46px;
+  height: 100%;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+  -webkit-app-region: no-drag;
+  app-region: no-drag;
+}
+
+.titlebar-button:hover {
+  background-color: var(--surface-hover);
+  color: var(--text-primary);
+}
+
+.titlebar-button:active {
+  background-color: var(--surface-border);
+}
+
+.titlebar-close:hover {
+  background-color: #e81123;
+  color: white;
+}
+
+.titlebar-close:active {
+  background-color: #bf0f1d;
+}
