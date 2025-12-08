@@ -46,9 +46,9 @@ export default function BrowserToolbar() {
     return (
         <div
             className="fixed top-0 left-0 right-0 h-[50px] bg-background border-b border-border flex items-center px-2 gap-2 select-none z-50 overflow-hidden"
-            data-tauri-drag-region
+            style={{ WebkitAppRegion: "drag" } as React.CSSProperties}
         >
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-1" style={{ WebkitAppRegion: "no-drag" } as React.CSSProperties}>
                 <button
                     onClick={handleBack}
                     className="p-2 rounded-md hover:bg-accent text-foreground transition-colors"
@@ -81,15 +81,18 @@ export default function BrowserToolbar() {
 
             <div
                 className="flex-1 flex items-center justify-center px-4"
-                data-tauri-drag-region
+                style={{ WebkitAppRegion: "drag" } as React.CSSProperties}
             >
-                <div className="bg-surface/50 border border-input-border rounded-lg px-3 py-1.5 text-sm text-text-secondary w-full max-w-xl text-center truncate flex items-center justify-center gap-2 pointer-events-none">
+                <div
+                    className="bg-surface/50 border border-input-border rounded-lg px-3 py-1.5 text-sm text-text-secondary w-full max-w-xl text-center truncate flex items-center justify-center gap-2 pointer-events-none"
+                    style={{ WebkitAppRegion: "no-drag" } as React.CSSProperties}
+                >
                     <span className="font-semibold text-text-primary mr-2">{appName}</span>
                     <span className="opacity-50 text-xs">{currentUrl || initialUrl}</span>
                 </div>
             </div>
 
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-1" style={{ WebkitAppRegion: "no-drag" } as React.CSSProperties}>
                 <button
                     onClick={handleMinimize}
                     className="p-2 rounded-md hover:bg-accent text-foreground transition-colors"
